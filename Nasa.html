@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpaceX Launches with NASA Images</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .launch-card {
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+        }
+        .launch-image {
+            max-width: 100%;
+            border-radius: 5px;
+        }
+        .nasa-image {
+            max-width: 100%;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>SpaceX Launches with NASA Images</h1>
+        <div id="launches"></div>
+    </div>
+
+    <script>
+        function fetchLaunches() {
+            const spacexUrl = 'https://api.spacexdata.com/v4/launches/upcoming';
+            fetch(spacexUrl)
+                .then(response => response.json())
+                .then(spacexData => {
+                    const launchesContainer = document.getElementById('launches');
+                    spacexData.forEach(launch => {
+                        const launchCard = document.createElement('div');
+                        launchCard.classList.add('launch-card');
+
+                        const missionName = document.createElement('h2');
+                        missionName.textContent = launch.name;
+                        launchCard.appendChild(missionName);
+
+                        const launchImage = document.createElement('img');
+                        launchImage.classList.add('launch-image');
+                        launchImage.src = launch.links.patch.small;
+                        launchImage.alt = launch.name;
+                        launchCard.appendChild(launchImage);
+
+                        fetchNasaImage().then(nasaImageUrl => {
+                            const nasaImage = document.createElement('img');
+                            nasaImage.classList.add('nasa-image');
+                            nasaImage.src = nasaImageUrl;
+                            nasaImage.alt = 'NASA Image';
+                            launchCard.appendChild(nasaImage);
+                        });
+
+                        launchesContainer.appendChild(launchCard);
+                    });
+                })
+                .catch(error => console.error('Error fetching SpaceX launches:', error));
+        }
+
+        function fetchNasaImage() {
+            const nasaUrl = 'https://api.nasa.gov/planetary/apod?api_key=bdrAmn0jGkGEBUmZBOrokl2vIo1xrxQjFpPl058H';
+            return fetch(nasaUrl)
+                .then(response => response.json())
+                .then(nasaData => nasaData.url)
+                .catch(error => {
+                    console.error('Error fetching NASA image:', error);
+                    return 'default_nasa_image.jpg'; // Provide a default image in case of error
+                });
+        }
+
+        fetchLaunches();
+    </script>
+</body>
+</html>
